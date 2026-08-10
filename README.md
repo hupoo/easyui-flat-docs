@@ -35,5 +35,15 @@ python render.py     # 渲染为 ../index.html
 
 ## 部署
 
-通过 GitHub Actions + GitHub Pages 自动发布，工作流见 `.github/workflows/pages.yml`。
-推送 `main` 分支即触发部署，发布地址为 `https://<github-user>.github.io/<repo>/`。
+当前通过 **GitHub Pages「从分支部署」** 发布（分支 `main`，根目录），线上地址：
+
+> https://hupoo.github.io/easyui-flat-docs/
+
+推送 `main` 即自动重新发布。
+
+### 切换到 GitHub Actions 部署（可选）
+
+仓库里已备好 Actions 工作流 `.github/workflows/pages.yml`（使用 `actions/deploy-pages`）。
+若改用 Actions 方式，需要拥有 **`workflow` 作用域** 的 Personal Access Token 才能把工作流文件推上去；
+推送后到仓库 **Settings → Pages**，把 Source 改为 **GitHub Actions** 即可。
+（当前因初始令牌仅含 `repo` 作用域，先用「从分支部署」让站点上线。）
