@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  a { @apply text-blue-600 no-underline; }
+  a:hover { @apply underline; }
+  code { @apply bg-slate-100 border border-slate-200 rounded px-1 py-0.5 text-xs; }
+}
+
+@layer components {
+  /* ---- sidebar nav (classes referenced by JS) ---- */
+  .nav-group { @apply mb-3; }
+  .nav-group > .gtitle { @apply text-xs font-bold uppercase tracking-wide text-slate-400 mb-1.5 px-2.5; }
+  .nav-item { @apply flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 cursor-pointer text-sm text-slate-700; }
+  .nav-item:hover { @apply bg-blue-50; }
+  .nav-item.active { @apply bg-blue-600 text-white; }
+  .nav-item.active .nm { @apply text-white; }
+  .nav-item.active .cnt { @apply text-blue-100; }
+  .nav-item.active .cnt b { @apply text-white; }
+  .nav-item .nm { @apply font-semibold; }
+  .nav-item .cnt { @apply text-xs text-slate-400 whitespace-nowrap; }
+  .nav-item .cnt b { @apply text-blue-600; }
+
+  /* ---- content sections (JS-tied classes kept stable) ---- */
+  .comp { @apply border-t border-slate-200 py-7 scroll-mt-20 lg:scroll-mt-0; }
+  .comp:first-of-type { @apply border-t-0; }
+  .comp h2 { @apply flex items-center gap-2.5 flex-wrap text-xl font-semibold text-slate-900 m-0; }
+  .badge { @apply text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded-md px-1.5 py-0.5; }
+  .orig { @apply text-xs; }
+  .desc { @apply text-slate-500 my-1.5; }
+  .chains { @apply flex flex-col gap-1.5 my-2.5; }
+  .chain { @apply inline-flex items-center gap-1.5 flex-wrap w-fit text-sm bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5; }
+  .chain .arrow { @apply text-slate-400; }
+  .chain .me { @apply font-bold text-blue-600; }
+  .chain a.src { @apply font-semibold text-blue-600; }
+  .deps { @apply text-xs text-slate-500 my-1.5; }
+
+  .toolbar { @apply flex items-center gap-2.5 my-1.5 flex-wrap; }
+  .toolbar select { @apply border border-slate-300 rounded-md px-2 py-1 text-xs bg-white text-slate-700; }
+  .toolbar .hint { @apply text-xs text-slate-400; }
+
+  /* ---- tables ---- */
+  table { @apply w-full border-collapse my-1.5 text-[13px]; }
+  caption { @apply text-left font-bold text-sm mt-3 mb-1 text-slate-800; }
+  th, td { @apply border border-slate-200 px-2.5 py-1.5 text-left align-top; }
+  thead th { @apply sticky top-14 lg:top-0 bg-slate-100 text-slate-600 font-semibold text-xs z-10; }
+  tbody tr:nth-child(even) { @apply bg-slate-50; }
+  td.name { @apply font-mono font-semibold text-slate-900 whitespace-nowrap; }
+  td.src { @apply whitespace-nowrap; }
+  .srcpill { @apply inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 rounded-full px-2 py-0.5 text-[11px] font-semibold; }
+  .srcpill.own { @apply bg-emerald-50 text-emerald-700; }
+  .tag-over { @apply text-[10px] font-bold text-amber-700 bg-amber-100 rounded px-1.5 py-0 ml-1; }
+  .empty { @apply text-slate-400 italic py-1; }
+
+  /* ---- legend pills ---- */
+  .legend { @apply flex gap-3.5 flex-wrap mt-2.5 text-xs text-slate-500; }
+  .legend .pill { @apply rounded-full px-2 py-0.5 text-[11px] font-semibold; }
+  .pill.own { @apply bg-emerald-100 text-emerald-700; }
+  .pill.over { @apply bg-amber-100 text-amber-700; }
+  .pill.src { @apply bg-indigo-100 text-indigo-700; }
+}

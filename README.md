@@ -20,10 +20,13 @@
 - 每个组件附「原站 ↗」链接，方便对照原文。
 - 表格**按需懒加载**：整页 21 个组件、上万行不会一次性渲染；滚动到视口附近才构建具体行，
   视口外的分区自动卸载并以占位高度防跳动，因此筛选 / 滚动始终流畅不卡顿。
+- **响应式布局（Tailwind CSS）**：桌面端左侧固定导航 + 居中正文（`max-w` 限宽）；
+  移动端导航收起为顶部抽屉（汉堡按钮 + 遮罩），正文居中自适应，表格表头在移动端避让顶栏。
 
 ## 本地查看
 
 `index.html` 是**自包含单文件**（数据 / 样式 / 脚本全部内联），双击即可在浏览器打开，无需联网或构建。
+样式基于 Tailwind CSS，编译产物已内联进文件，因此离线也能完整呈现。
 
 ## 重新生成（当 jeasyui.cn 更新时）
 
@@ -32,8 +35,12 @@ cd build
 pip install requests beautifulsoup4   # 首次需要
 python scrape.py     # 抓取并解析 21 个组件 API 页 -> components_raw.json
 python flatten.py    # 沿继承链扁平合并并标注来源 -> components_flat.json
-python render.py     # 渲染为 ../index.html
+python render.py     # 读取已编译的 tailwind.css 并内联，渲染为 ../index.html
 ```
+
+> 编译产物 `build/tailwind.css` 已随仓库提交，因此**日常重新生成只需上面三步 Python 命令，无需 Node**。
+> 只有当你修改了 `build/src.css`（自定义组件样式）或 `render.py` 里的工具类时，才需要先重跑 Tailwind 编译：
+> `npx tailwindcss -i build/src.css -o build/tailwind.css --minify`（需本地装有 `tailwindcss@3`）。
 
 ## 部署
 

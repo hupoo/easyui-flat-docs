@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Render components_flat.json into a static, single-page HTML documentation site."""
+"""Render components_flat.json into a static, single-page HTML documentation site.
+
+Styling uses Tailwind CSS: build/tailwind.css (compiled from src.css) is inlined so the
+output stays a self-contained, offline-openable single file.
+"""
 import json
 import html
+import os
 
 ROOT = "E:/documents/easyui文档/easyui-new-docs"
 SITE = ROOT  # index.html goes to site root
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 FAMILIES = [
     ("表单输入", ["validatebox", "textbox", "combo", "combobox", "datebox",
@@ -82,82 +88,9 @@ def render():
         "labels": {n: (flat[n].get("display") or n) for n in flat},
     }
 
-    css = """
-    :root{
-      --bg:#ffffff; --panel:#f7f8fa; --border:#e5e7eb; --text:#1f2933;
-      --muted:#6b7280; --accent:#2563eb; --accent-soft:#eff6ff;
-      --own:#10b981; --over:#f59e0b; --chip:#eef2ff;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;height:100%}
-    html{scroll-behavior:smooth}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-      color:var(--text);background:var(--bg);font-size:14px;line-height:1.6}
-    a{color:var(--accent);text-decoration:none}
-    a:hover{text-decoration:underline}
-    #layout{display:flex;min-height:100vh}
-    /* sidebar */
-    #sidebar{width:280px;flex:0 0 280px;background:var(--panel);border-right:1px solid var(--border);
-      position:sticky;top:0;height:100vh;overflow-y:auto;padding:18px 14px}
-    #sidebar h1{font-size:16px;margin:0 0 4px}
-    #sidebar .sub{color:var(--muted);font-size:12px;margin-bottom:14px}
-    #search{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;
-      font-size:13px;margin-bottom:14px;background:#fff}
-    .nav-group{margin-bottom:14px}
-    .nav-group > .gtitle{font-size:12px;font-weight:700;color:var(--muted);
-      text-transform:uppercase;letter-spacing:.04em;margin:10px 4px 6px}
-    .nav-item{display:flex;justify-content:space-between;align-items:center;
-      padding:6px 10px;border-radius:8px;cursor:pointer;gap:8px}
-    .nav-item:hover{background:var(--accent-soft)}
-    .nav-item.active{background:var(--accent);color:#fff}
-    .nav-item.active .nm{color:#fff}
-    .nav-item.active .cnt{color:#dbeafe}
-    .nav-item.active .cnt b{color:#fff}
-    .nav-item .nm{font-weight:600}
-    .nav-item .cnt{font-size:11px;color:var(--muted);white-space:nowrap}
-    .nav-item .cnt b{color:var(--accent)}
-    /* main */
-    #content{flex:1;padding:28px 36px;max-width:1100px}
-    header.top{border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:24px}
-    header.top h1{margin:0 0 6px;font-size:22px}
-    header.top p{color:var(--muted);margin:4px 0}
-    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
-    .legend .pill{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
-    .pill.own{background:#ecfdf5;color:#047857}
-    .pill.over{background:#fef3c7;color:#b45309}
-    .pill.src{background:var(--chip);color:#4338ca}
-    section.comp{border-top:1px solid var(--border);padding:26px 0;scroll-margin-top:16px}
-    section.comp:first-of-type{border-top:none}
-    .comp h2{margin:0 0 2px;font-size:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .badge{font-size:11px;font-weight:600;color:var(--muted);background:var(--panel);
-      border:1px solid var(--border);border-radius:6px;padding:1px 7px}
-    .orig{font-size:12px}
-    .desc{color:var(--muted);margin:6px 0 12px}
-    .chains{display:flex;flex-direction:column;gap:6px;margin:10px 0 6px;flex-wrap:wrap}
-    .chain{font-size:13px;background:var(--panel);border:1px solid var(--border);
-      border-radius:8px;padding:6px 10px;display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;width:fit-content}
-    .chain .arrow{color:var(--muted)}
-    .chain .me{font-weight:700;color:var(--accent)}
-    .chain a.src{font-weight:600}
-    .deps{font-size:12px;color:var(--muted);margin:6px 0 14px}
-    .toolbar{display:flex;align-items:center;gap:10px;margin:6px 0 10px;flex-wrap:wrap}
-    .toolbar select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:#fff;font-size:12px}
-    .toolbar .hint{font-size:12px;color:var(--muted)}
-    table{width:100%;border-collapse:collapse;margin:6px 0 18px;font-size:13px}
-    caption{text-align:left;font-weight:700;font-size:14px;margin:10px 0 4px;color:var(--text)}
-    th,td{border:1px solid var(--border);padding:7px 9px;vertical-align:top;text-align:left}
-    thead th{background:var(--panel);position:sticky;top:0;font-size:12px}
-    tbody tr:nth-child(even){background:#fafbfc}
-    td.name{font-family:"SFMono-Regular",Consolas,monospace;font-weight:600;color:#0f172a;white-space:nowrap}
-    td.src{white-space:nowrap}
-    .srcpill{display:inline-flex;gap:5px;align-items:center;background:var(--chip);color:#4338ca;
-      border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600}
-    .srcpill.own{background:#ecfdf5;color:#047857}
-    .tag-over{font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;border-radius:4px;padding:0 5px;margin-left:4px}
-    .empty{color:var(--muted);font-style:italic;padding:4px 0}
-    code{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:0 4px;font-size:12px}
-    @media(max-width:820px){#sidebar{display:none}#content{padding:18px}}
-    """
+    # Tailwind CSS compiled from src.css (build step), inlined for a self-contained file
+    with open(os.path.join(HERE, "tailwind.css"), encoding="utf-8") as f:
+        css = f.read()
 
     js = """
     const PAYLOAD = __PAYLOAD__;
@@ -174,6 +107,18 @@ def render():
       return e;
     }
 
+    // ---- mobile drawer ----
+    function openMenu(){
+      const sb=document.getElementById('sidebar'), bd=document.getElementById('backdrop');
+      sb.classList.remove('-translate-x-full'); sb.classList.add('translate-x-0');
+      bd.classList.remove('opacity-0','pointer-events-none');
+    }
+    function closeMenu(){
+      const sb=document.getElementById('sidebar'), bd=document.getElementById('backdrop');
+      sb.classList.add('-translate-x-full'); sb.classList.remove('translate-x-0');
+      bd.classList.add('opacity-0','pointer-events-none');
+    }
+
     // ---- sidebar ----
     function buildSidebar(){
       const sb=document.getElementById('sidebar-nav');
@@ -186,7 +131,7 @@ def render():
           row.appendChild(el('span','nm', it.display));
           row.appendChild(el('span','cnt',
             'P<b>'+it.p+'</b> · E<b>'+it.e+'</b> · M<b>'+it.m+'</b>'));
-          row.addEventListener('click', ()=>goTo(it.name, true));
+          row.addEventListener('click', ()=>{ goTo(it.name, true); if(window.innerWidth<1024) closeMenu(); });
           grp.appendChild(row);
         });
         sb.appendChild(grp);
@@ -277,9 +222,8 @@ def render():
       sec.appendChild(el('div','',h));
       if(c.desc) sec.appendChild(el('div','desc', c.desc));
       // chains
-      const chainsWrap=el('div','chains', chainHtml(c.chains, self));
-      sec.appendChild(el('div','', '<div style="font-size:12px;color:var(--muted);margin-bottom:2px">继承链（点击祖先可跳转）：</div>'));
-      sec.appendChild(chainsWrap);
+      sec.appendChild(el('div','', '<div class="text-xs text-slate-400 mb-0.5">继承链（点击祖先可跳转）：</div>'));
+      sec.appendChild(el('div','chains', chainHtml(c.chains, self)));
       if(c.depends && c.depends.length)
         sec.appendChild(el('div','deps','依赖组件：'+c.depends.map(d=>'<a href="#'+d+'">'+d+'</a>').join('、')));
       // toolbar (always present so the filter dropdown works without mounting tables)
@@ -333,17 +277,17 @@ def render():
     }
 
     function renderAll(){
-      const main=document.getElementById('content');
-      const intro=el('header','top',
-        '<h1>EasyUI 扁平化 API 文档</h1>'+
-        '<p>基于国内站点 <a href="https://www.jeasyui.cn/" target="_blank" rel="noopener">jeasyui.cn</a> 重构。'+
-        '官方文档按「扩展自 X」层层嵌套，查 combogrid 的方法要跳 combo → validatebox 与 datagrid → panel，极不友好。</p>'+
-        '<p>本站点已将每个组件<b>全部可用的属性 / 事件 / 方法扁平化合并到一张表</b>，并用「来源」列标注该成员实际定义在哪个祖先组件；带 <span class="pill over">重写</span> 标记表示在当前组件中被重写。</p>'+
+      const main=document.getElementById('content-inner');
+      const introHtml=
+        '<h1 class="text-2xl font-bold text-slate-900 m-0">EasyUI 扁平化 API 文档</h1>'+
+        '<p class="text-slate-500 mt-2 leading-relaxed">基于国内站点 <a href="https://www.jeasyui.cn/" target="_blank" rel="noopener">jeasyui.cn</a> 重构。官方文档按「扩展自 X」层层嵌套，查 combogrid 的方法要跳 combo → validatebox 与 datagrid → panel，极不友好。</p>'+
+        '<p class="text-slate-500 mt-1.5 leading-relaxed">本站点已将每个组件<b>全部可用的属性 / 事件 / 方法扁平化合并到一张表</b>，并用「来源」列标注该成员实际定义在哪个祖先组件；带 <span class="pill over">重写</span> 标记表示在当前组件中被重写。</p>'+
         '<div class="legend">'+
         '<span><span class="pill own">自身</span> 当前组件新增/重写</span>'+
         '<span><span class="pill src">祖先名</span> 继承自该祖先</span>'+
         '<span><span class="pill over">重写</span> 覆盖了祖先同名成员</span>'+
-        '</div>');
+        '</div>';
+      const intro=el('header','mb-8 pb-5 border-b border-slate-200', introHtml);
       main.appendChild(intro);
       Object.keys(DATA).forEach(n=>{ main.appendChild(sectionHtml(DATA[n])); });
     }
@@ -368,6 +312,9 @@ def render():
           filterSec(self, sel.value);
         }
       });
+      // mobile menu
+      document.getElementById('menuBtn').addEventListener('click', openMenu);
+      document.getElementById('backdrop').addEventListener('click', closeMenu);
       function ensureMounted(id){ if(id && document.getElementById(id)) mountTables(id); }
       window.addEventListener('hashchange', ()=>{ const id=location.hash.slice(1); ensureMounted(id); if(id) setActive(id); });
       if(location.hash){ const id=location.hash.slice(1); const s=document.getElementById(id); if(s){ ensureMounted(id); s.scrollIntoView(); setActive(id); } }
@@ -394,22 +341,44 @@ def render():
     """
 
     page = """<!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="scroll-smooth">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EasyUI 扁平化 API 文档</title>
 <style>__CSS__</style>
 </head>
-<body>
-<div id="layout">
-  <aside id="sidebar">
-    <h1>EasyUI 文档</h1>
-    <div class="sub">扁平化 · 含全部继承成员</div>
-    <input id="search" type="text" placeholder="搜索组件…" autocomplete="off">
-    <div id="sidebar-nav"></div>
+<body class="bg-slate-50 text-slate-800 antialiased">
+<div id="layout" class="flex min-h-screen">
+
+  <!-- mobile top bar -->
+  <header class="lg:hidden fixed top-0 inset-x-0 h-14 z-30 flex items-center justify-between px-4 bg-white border-b border-slate-200 shadow-sm">
+    <span class="font-semibold text-slate-800">EasyUI 扁平化文档</span>
+    <button id="menuBtn" class="p-2 -mr-2 rounded-md text-slate-600 hover:bg-slate-100" aria-label="打开菜单">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- backdrop for mobile drawer -->
+  <div id="backdrop" class="lg:hidden fixed inset-0 z-20 bg-black/40 opacity-0 pointer-events-none transition-opacity"></div>
+
+  <!-- sidebar (drawer on mobile, static sticky on desktop) -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 max-w-[82%] -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen transition-transform duration-200 flex flex-col bg-white border-r border-slate-200 pt-14 lg:pt-0 overflow-y-auto">
+    <div class="px-4 py-4">
+      <h1 class="text-base font-bold text-slate-900">EasyUI 文档</h1>
+      <div class="text-xs text-slate-400 mt-1">扁平化 · 含全部继承成员</div>
+      <input id="search" type="text" placeholder="搜索组件…" autocomplete="off"
+        class="mt-3.5 w-full px-2.5 py-2 border border-slate-300 rounded-lg text-[13px] bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40">
+      <div id="sidebar-nav"></div>
+    </div>
   </aside>
-  <main id="content"></main>
+
+  <!-- main content -->
+  <main id="content" class="flex-1 min-w-0 pt-14 lg:pt-0">
+    <div id="content-inner" class="mx-auto max-w-4xl px-5 lg:px-10 py-8"></div>
+  </main>
 </div>
 <script>__JS__</script>
 </body>
