@@ -35,15 +35,19 @@ python render.py     # 渲染为 ../index.html
 
 ## 部署
 
-当前通过 **GitHub Pages「从分支部署」** 发布（分支 `main`，根目录），线上地址：
+### 当前状态：GitHub Pages「从分支部署」
+
+通过 GitHub Pages **从分支部署**（分支 `main`，根目录），线上地址：
 
 > https://hupoo.github.io/easyui-flat-docs/
 
-推送 `main` 即自动重新发布。
+推送 `main` 即自动重新发布，可直接访问，无需 Actions。
 
-### 切换到 GitHub Actions 部署（可选）
+### 切换到 GitHub Actions 部署（已就绪，待令牌）
 
-仓库里已备好 Actions 工作流 `.github/workflows/pages.yml`（使用 `actions/deploy-pages`）。
-若改用 Actions 方式，需要拥有 **`workflow` 作用域** 的 Personal Access Token 才能把工作流文件推上去；
-推送后到仓库 **Settings → Pages**，把 Source 改为 **GitHub Actions** 即可。
-（当前因初始令牌仅含 `repo` 作用域，先用「从分支部署」让站点上线。）
+Actions 工作流文件 `.github/workflows/pages.yml`（使用 `actions/deploy-pages`）**已写好**，
+但因需把工作流文件推上 GitHub，必须有 **`workflow` 作用域** 的 Personal Access Token（初始令牌只有 `repo`）。
+拿到带 `workflow` 的令牌后，助手会：提交并推送工作流 → 把仓库 Pages 的 Source 改为 **GitHub Actions**
+→ 之后仍由「推送 `main`」触发自动部署（行为不变，仅部署方从分支改为 Actions）。
+
+> 更完整的重新生成 / 推送 / 令牌过期处理说明，见 **[维护指南.md](维护指南.md)**。
