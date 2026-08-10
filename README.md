@@ -18,6 +18,8 @@
 - 每个组件顶部有**继承链面包屑**，点击祖先可跳转。
 - 每张表上方「按来源筛选」下拉：只看「仅自身新增」或某个祖先的成员。
 - 每个组件附「原站 ↗」链接，方便对照原文。
+- 表格**按需懒加载**：整页 21 个组件、上万行不会一次性渲染；滚动到视口附近才构建具体行，
+  视口外的分区自动卸载并以占位高度防跳动，因此筛选 / 滚动始终流畅不卡顿。
 
 ## 本地查看
 
@@ -35,19 +37,14 @@ python render.py     # 渲染为 ../index.html
 
 ## 部署
 
-### 当前状态：GitHub Pages「从分支部署」
+### 当前状态：GitHub Pages（GitHub Actions 自动部署）
 
-通过 GitHub Pages **从分支部署**（分支 `main`，根目录），线上地址：
+线上地址：
 
 > https://hupoo.github.io/easyui-flat-docs/
 
-推送 `main` 即自动重新发布，可直接访问，无需 Actions。
-
-### 切换到 GitHub Actions 部署（已就绪，待令牌）
-
-Actions 工作流文件 `.github/workflows/pages.yml`（使用 `actions/deploy-pages`）**已写好**，
-但因需把工作流文件推上 GitHub，必须有 **`workflow` 作用域** 的 Personal Access Token（初始令牌只有 `repo`）。
-拿到带 `workflow` 的令牌后，助手会：提交并推送工作流 → 把仓库 Pages 的 Source 改为 **GitHub Actions**
-→ 之后仍由「推送 `main`」触发自动部署（行为不变，仅部署方从分支改为 Actions）。
+仓库 `hupoo/easyui-flat-docs` 已配置 **GitHub Actions** 部署（工作流 `.github/workflows/pages.yml`，
+基于 `actions/deploy-pages`）。**推送 `main` 即自动触发构建与发布**，无需手动操作；
+部署过程使用 GitHub 内置的 `GITHUB_TOKEN`，不依赖你的个人令牌。
 
 > 更完整的重新生成 / 推送 / 令牌过期处理说明，见 **[维护指南.md](维护指南.md)**。
