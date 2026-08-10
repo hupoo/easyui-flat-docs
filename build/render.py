@@ -202,6 +202,7 @@ def render():
     function goTo(name, resetSearch){
       const sec=document.getElementById(name);
       if(!sec) return;
+      mountTables(name);
       location.hash='#'+name;
       sec.scrollIntoView({behavior:'smooth'});
       setActive(name);
@@ -281,7 +282,7 @@ def render():
       sec.appendChild(chainsWrap);
       if(c.depends && c.depends.length)
         sec.appendChild(el('div','deps','依赖组件：'+c.depends.map(d=>'<a href="#'+d+'">'+d+'</a>').join('、')));
-      // toolbar + tables
+      // toolbar (always present so the filter dropdown works without mounting tables)
       const sources=[...new Set([...c.properties,...c.events,...c.methods].map(r=>r.source))];
       let opts='<option value="__all__">全部来源</option><option value="__own__">仅自身新增</option>';
       sources.forEach(s=>{ opts+='<option value="'+s+'">'+(s===self?'自身':(LABELS[s]||s))+'</option>'; });
@@ -289,10 +290,34 @@ def render():
       sec.appendChild(el('div','toolbar',
         '<span class="hint">'+counts+'</span>'+
         '<label class="hint">按来源筛选：</label><select class="srcfilter" data-self="'+self+'">'+opts+'</select>'));
-      sec.appendChild(el('div','', tableHtml('属性',c.properties,self,'属性（Properties）')));
-      sec.appendChild(el('div','', tableHtml('事件',c.events,self,'事件（Events）')));
-      sec.appendChild(el('div','', tableHtml('方法',c.methods,self,'方法（Methods）')));
+      // lazy tables container (mounted on demand / when near viewport)
+      const tc=el('div','tables'); tc.setAttribute('data-loaded','0'); tc.setAttribute('data-name',self);
+      sec.appendChild(tc);
       return sec;
+    }
+
+    // ---- lazy mount / unmount of a section's heavy tables ----
+    function mountTables(self){
+      const sec=document.getElementById(self);
+      if(!sec) return;
+      const tc=sec.querySelector('.tables');
+      if(!tc || tc.getAttribute('data-loaded')==='1') return;
+      const c=DATA[self];
+      tc.appendChild(el('div','', tableHtml('属性',c.properties,self,'属性（Properties）')));
+      tc.appendChild(el('div','', tableHtml('事件',c.events,self,'事件（Events）')));
+      tc.appendChild(el('div','', tableHtml('方法',c.methods,self,'方法（Methods）')));
+      tc.style.minHeight='';
+      tc.setAttribute('data-loaded','1');
+    }
+    function unmountTables(self){
+      const sec=document.getElementById(self);
+      if(!sec) return;
+      const tc=sec.querySelector('.tables');
+      if(!tc || tc.getAttribute('data-loaded')!=='1') return;
+      // preserve height to avoid scroll jump, then drop the heavy DOM
+      tc.style.minHeight=tc.offsetHeight+'px';
+      tc.innerHTML='';
+      tc.setAttribute('data-loaded','0');
     }
 
     function filterSec(self, val){
@@ -326,6 +351,9 @@ def render():
     document.addEventListener('DOMContentLoaded',()=>{
       buildSidebar();
       renderAll();
+      const secIds=[...document.querySelectorAll('section.comp')].map(s=>s.id);
+      // initial: mount the first couple of sections for a good first paint
+      secIds.slice(0,2).forEach(mountTables);
       const searchEl=document.getElementById('search');
       searchEl.addEventListener('input', e=>applySearch(e.target.value));
       searchEl.addEventListener('keydown', e=>{
@@ -334,22 +362,33 @@ def render():
       // delegated "filter by source" handler for the per-section selects
       document.getElementById('content').addEventListener('change', e=>{
         const sel=e.target.closest('.srcfilter');
-        if(sel) filterSec(sel.getAttribute('data-self'), sel.value);
+        if(sel){
+          const self=sel.getAttribute('data-self');
+          mountTables(self);
+          filterSec(self, sel.value);
+        }
       });
-      window.addEventListener('hashchange', ()=>{ const id=location.hash.slice(1); if(id) setActive(id); });
-      // initial position from hash
-      if(location.hash){
-        const id=location.hash.slice(1);
-        const s=document.getElementById(id);
-        if(s){ s.scrollIntoView(); setActive(id); }
-      }
+      function ensureMounted(id){ if(id && document.getElementById(id)) mountTables(id); }
+      window.addEventListener('hashchange', ()=>{ const id=location.hash.slice(1); ensureMounted(id); if(id) setActive(id); });
+      if(location.hash){ const id=location.hash.slice(1); const s=document.getElementById(id); if(s){ ensureMounted(id); s.scrollIntoView(); setActive(id); } }
       // scroll spy: highlight nav as you scroll the documentation
-      const secs=[...document.querySelectorAll('section.comp')];
       if('IntersectionObserver' in window){
-        const obs=new IntersectionObserver(entries=>{
+        const spy=new IntersectionObserver(entries=>{
           entries.forEach(en=>{ if(en.isIntersecting) setActive(en.target.id); });
         }, {rootMargin:'-20% 0px -70% 0px', threshold:0});
-        secs.forEach(s=>obs.observe(s));
+        secIds.forEach(id=>spy.observe(document.getElementById(id)));
+        // lazy mount/unmount heavy tables: keep only near-viewport sections mounted
+        const lazy=new IntersectionObserver(entries=>{
+          entries.forEach(en=>{
+            const id=en.target.id;
+            if(en.isIntersecting){ mountTables(id); }
+            else {
+              const r=en.boundingClientRect, vh=window.innerHeight||800;
+              if(r.bottom < -1500 || r.top > vh+1500) unmountTables(id);
+            }
+          });
+        }, {root:null, rootMargin:'600px 0px', threshold:0});
+        secIds.forEach(id=>lazy.observe(document.getElementById(id)));
       }
     });
     """
